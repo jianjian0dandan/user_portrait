@@ -2,21 +2,29 @@
 
 import os
 import time
-
-from flask import Flask, Blueprint, url_for, render_template, request,  session, redirect, escape
+import json
+from flask import Flask, flash, views, Blueprint, url_for, render_template, request,  session, redirect, escape
+from flask.ext.login import login_user
 # temporary use
 from user_portrait.global_utils import R_ADMIN as r
-mod = Blueprint('LoginManage', __name__, url_prefix='/LoginManage')
+mod = Blueprint('login', __name__, url_prefix='/login')
+
+class HomeView(views.MethodView):
+    templates = 'LoginManage.html'
+
+    def get(self):
+        return render_template(self.templates)
+mod.add_url_rule('/', view_func=HomeView.as_view('user'))
 
 
 @mod.route('/welcome')
 def index():
     if 'username' in session:
         return 'Logged in as %s' % escape(session['username'])
-    return render_template('test.html')
+    return render_template('LoginManage.html')
 
 
-@mod.route('/login', methods=['GET','POST'])
+@mod.route('/login/')
 def login():
     username = request.args.get('username','')
     password = request.args.get('password','')
@@ -34,16 +42,25 @@ def login():
             return "password is not correct"
     else:
         return "username is not correct"
-
     if vertify_result:
         session['username'] = username
-        return redirect(url_for('portrait.personal'))
+        session['logged_in'] = 'true'
+        flash('登录成功！')
+        #login_user()
+        return 'true'
+        #return redirect('/index/');
 
 
-@mod.route('/logout') # log out
+@mod.route('/logout/') # log out
 def logout():
-    session.pop('username', None)
-    return redirect(url_for('.index'))
+    if 'logged_in' in session and session['logged_in']:
+        session.pop('username', None)
+        session.pop('logged_in', None)
+        flash('退出成功！')
+        return json.dumps('true')
+        #return redirect('/login/')
+    else:
+        return ''
 
 @mod.route('/revise_password') # revise password
 def revise_password():
