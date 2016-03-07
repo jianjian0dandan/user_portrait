@@ -71,9 +71,9 @@ function attention(data,UserID,UserName,texts){
         var nod_name_in = in_data[i][0];
       }
       if(in_data[i][1]=='unknown'){
-        rename_in = '未知';
+        var rename_in = '未知';
       }else{
-        rename_in = in_data[i][1];
+        var rename_in = in_data[i][1];
       }
       nod['name'] = rename_in +'('+nod_name_in+')';
       //nod['name'] = in_data[i][1] +'('+nod_name_in+')';
